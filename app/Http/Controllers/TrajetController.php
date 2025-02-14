@@ -15,12 +15,12 @@ class TrajetController extends Controller
     {
         $villesDepart = Voyage::distinct()->pluck('ville_depart');
         $villesDarriv = Voyage::distinct()->pluck('ville_arrivee');
-        return view('rechercher', ['villesDepart'=>$villesDepart,'villesArrivee'=>$villesDarriv]);
+        return view('Rechercher', ['villesDepart' => $villesDepart, 'villesArrivee' => $villesDarriv]);
     }
 
     public function rechercherVoyages(Request $request)
     {
-       //session()->flush();
+        //session()->flush();
 
 
 
@@ -36,6 +36,6 @@ class TrajetController extends Controller
         $voyages = Voyage::where('ville_depart', $vd)->where('ville_arrivee', $va)->get();
 
         // Retourner la vue avec les résultats de la recherche
-        return view('rechercher', ['voyages'=>$voyages,'villesDepart'=>$villesDepart,'villesArrivee'=>$villesDarriv,'vd'=>$vd,'va'=>$va]);
+        return view('Rechercher', ['voyages' => $voyages, 'villesDepart' => $villesDepart, 'villesArrivee' => $villesDarriv, 'vd' => $vd, 'va' => $va]);
     }
 }
