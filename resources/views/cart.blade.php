@@ -1,110 +1,85 @@
-
 @extends('Master_page')
 
 @section('title', 'Cart')
 
 @section('content')
-                @include('incs.flash')
+    @include('incs.flash')
 
-    <table id="cart" class="table table-hover table-condensed">
-        <thead>
-        <tr>
-            <th style="width:50%">Voyage</th>
-            <th style="width:10%">Price</th>
-            <th style="width:8%">Quantity</th>
-            <th style="width:22%" class="text-center">Subtotal</th>
-            <th style="width:10%"></th>
-        </tr>
-        </thead>
-        <tbody>
+    <div class="container mt-5">
+        <div class="card shadow-lg rounded">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0">Votre Panier</h4>
+            </div>
+            <div class="card-body">
+                <table id="cart" class="table table-striped table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Voyage</th>
+                            <th>Prix</th>
+                            <th>Quantité</th>
+                            <th class="text-center">Sous-total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php $total = 0 @endphp
+                        @if(session('cart'))
+                            @foreach(session('cart') as $id => $details)
+                                @php $total += $details['price'] * $details['quantity'] @endphp
+                                <tr>
+                                    <td>
+                                        <h5 class="font-weight-bold">{{ $details['Code_Voyage'] }}</h5>
+                                    </td>
+                                    <td>{{ $details['price'] }} DH</td>
+                                    <td>
 
-        @php $total = 0 @endphp
-<!-- by this code session get all product that user chose -->
-        @if(session('cart'))
-            @foreach(session('cart') as $id => $details)
+                                        <form action="{{ url('update-cart') }}" method="POST" class="d-inline">
+                                            @method('PATCH')
+                                            @csrf
+                                            <input type="number" name="quantity" value="{{ $details['quantity'] }}" class="form-control text-center" style="width: 80px;" />
+                                            <input type="hidden" name="id" value="{{ $id }}" />
+                                            <button type="submit" class="btn btn-sm btn-outline-info mt-2">Modifier</button>
+                                        </form>
+                                    </td>
+                                    <td class="text-center font-weight-bold">{{ $details['price'] * $details['quantity'] }} DH</td>
+                                    <td>
 
-                @php $total += $details['price'] * $details['quantity'] @endphp
+                                        <form action="{{ url('remove-from-cart') }}" method="POST" onsubmit="return confirmDelete()">
+                                            @method('DELETE')
+                                            @csrf
+                                            <input type="hidden" name="id" value="{{ $id }}" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger mt-2">Supprimer</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-right font-weight-bold">Total :</td>
+                            <td class="text-center font-weight-bold">{{ $total }} DH</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-center">
+                                <a href="{{ url('/rechercher-trajets') }}" class="btn btn-outline-warning mr-2">
+                                    <i class="fa fa-angle-left"></i> Continuer la réservation
+                                </a>
+                                <a href="/saisie-voyageurs" class="btn btn-primary">Procéder au paiement</a>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
 
-                <tr>
-                    <td data-th="Product">
-                        <div class="row">
-                             <div class="col-sm-9">
-                                <h4 class="nomargin">{{ $details['Code_Voyage'] }}</h4>
-                            </div>
-                        </div>
-                    </td>
-                    <td data-th="Price">{{ $details['price'] }}-DH</td>
-                    <td data-th="Quantity">
-                        <input type="number" value="{{ $details['quantity'] }}" class="form-control quantity" />
-                    </td>
-                    <td data-th="Subtotal" class="text-center">{{ $details['price'] * $details['quantity'] }}-DH</td>
-                    <td class="actions" data-th="">
-                    <!-- this button is to update card -->
-                        <button class="btn btn-info btn-sm update-cart" data-id="{{ $id }}">Modifier</button>
-                       <!-- this button is for update card -->
-                        <button class="btn btn-danger btn-sm remove-from-cart delete" data-id="{{ $id }}">Supprimer</button>
-                    </td>
-                </tr>
-            @endforeach
-        @endif
-
-        </tbody>
-        <tfoot>
-
-        <tr>
-            <td><a href="{{ url('/rechercher-trajets') }}" class="btn btn-warning"><i class="fa fa-angle-left"></i> Continue booking</a><a href="/saisie-voyageurs" class="btn btn-primary">Paiement</a>
-            </td>
-            <td colspan="2" class="hidden-xs"></td>
-            <td class="hidden-xs text-center"><strong>Total {{ $total }} -DH</strong></td>
-        </tr>
-        </tfoot>
-    </table>
-
-@endsection
-
-
-@section('scripts')
-<script>
-
-
-
-// this function is for update card
-        $(".update-cart").click(function (e) {
-
-           e.preventDefault();
-
-           var ele = $(this);
-
-            $.ajax({
-               url: '{{ url('update-cart') }}',
-               method: "patch",
-               data: {_token: '{{ csrf_token() }}', id: ele.attr("data-id"), quantity: ele.parents("tr").find(".quantity").val()},
-               success: function (response) {
-                   window.location.reload();
-               }
-            });
-        });
-
-        $(".remove-from-cart").click(function (e) {
-            e.preventDefault();
-
-            var ele = $(this);
-
-            if(confirm("Are you sure")) {
-                $.ajax({
-                    url: '{{ url('remove-from-cart') }}',
-                    method: "DELETE",
-                    data: {_token: '{{ csrf_token() }}', id: ele.attr("data-id")},
-                    success: function (response) {
-                        window.location.reload();
-
-                    }
-                });
-            }
-        });
-
+    @section('scripts')
+    <script>
+        function confirmDelete() {
+            return confirm("Êtes-vous sûr de vouloir supprimer cette réservation ?");
+        }
     </script>
-
+    @endsection
 @endsection
-
-

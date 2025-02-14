@@ -23,23 +23,18 @@ Route::get('/traiter-recherche-trajets', [TrajetController::class, 'rechercherVo
 
 
 
-//cart
 
 
 
-Route::post('/cart/add', [CartController::class,'addToCart'])->name('cart.add');
+Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
 
-Route::get('cart', [CartController::class,'cart']);
+Route::get('cart', [CartController::class, 'cart']);
 
-Route::patch('update-cart', [CartController::class,'updatec']);
-
-Route::delete('remove-from-cart', [CartController::class,'removec']);
-
-
-Route::get('/saisie-voyageurs', [CartController::class,'saisievoyageurs']);
-
-Route::post('/valider', [CartController::class,'valider'])->name('valider');
+Route::patch('/update-cart', [CartController::class, 'updatec'])->name('update.cart');
+Route::delete('/remove-from-cart', [CartController::class, 'removec'])->name('remove.cart');
 
 
 
+Route::get('/saisie-voyageurs', [CartController::class, 'saisievoyageurs']);
 
+Route::post('/valider', [CartController::class, 'valider'])->name('valider');
